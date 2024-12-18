@@ -50,6 +50,15 @@ variable "igws" {
 }
 
 
+variable "public_route_table" {
+  type = map(object({
+    vpc_key = string
+    name    = string
+  }))
+  default = {
+  }
+}
+
 variable "public_subnets" {
   type = map(object({
     vpc_key           = string
@@ -57,28 +66,6 @@ variable "public_subnets" {
     name              = string
     cidr_block        = string
     availability_zone = string
-  }))
-  default = {
-  }
-}
-
-
-variable "private_subnets" {
-  type = map(object({
-    vpc_key           = string
-    rt_key            = string
-    name              = string
-    cidr_block        = string
-    availability_zone = string
-  }))
-  default = {
-  }
-}
-
-variable "public_route_table" {
-  type = map(object({
-    vpc_key = string
-    name    = string
   }))
   default = {
   }
@@ -92,6 +79,20 @@ variable "private_route_table" {
   default = {
   }
 }
+
+variable "private_subnets" {
+  type = map(object({
+    vpc_key           = string
+    rt_key            = string
+    name              = string
+    cidr_block        = string
+    availability_zone = string
+  }))
+  default = {
+  }
+}
+
+
 
 variable "eips" {
   type = map(object({

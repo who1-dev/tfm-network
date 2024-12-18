@@ -17,12 +17,32 @@ resource "aws_internet_gateway" "this" {
   depends_on = [aws_vpc.this]
 }
 
+# PUBLIC - RT 
+resource "aws_route_table" "public" {
+  for_each = var.public_route_table
+  vpc_id   = aws_vpc.this[each.value.vpc_key].id
+  tags = merge(local.default_tags, {
+    Name = "${local.name_prefix}-${each.value.name}"
+  })
+  depends_on = [aws_vpc.this]
+}
+
 # PUBLIC SUBNET Creation
 resource "aws_subnet" "public" {
   for_each          = var.public_subnets
   vpc_id            = aws_vpc.this[each.value.vpc_key].id
   cidr_block        = each.value.cidr_block
   availability_zone = each.value.availability_zone
+  tags = merge(local.default_tags, {
+    Name = "${local.name_prefix}-${each.value.name}"
+  })
+  depends_on = [aws_vpc.this]
+}
+
+# PRIVATE - RT 
+resource "aws_route_table" "private" {
+  for_each = var.private_route_table
+  vpc_id   = aws_vpc.this[each.value.vpc_key].id
   tags = merge(local.default_tags, {
     Name = "${local.name_prefix}-${each.value.name}"
   })
@@ -41,27 +61,6 @@ resource "aws_subnet" "private" {
   depends_on = [aws_vpc.this]
 }
 
-# PUBLIC - RT 
-resource "aws_route_table" "public" {
-  for_each = var.public_route_table
-  vpc_id   = aws_vpc.this[each.value.vpc_key].id
-  tags = merge(local.default_tags, {
-    Name = "${local.name_prefix}-${each.value.name}"
-  })
-  depends_on = [aws_vpc.this]
-}
-
-# PRIVATE - RT 
-resource "aws_route_table" "private" {
-  for_each = var.private_route_table
-  vpc_id   = aws_vpc.this[each.value.vpc_key].id
-  tags = merge(local.default_tags, {
-    Name = "${local.name_prefix}-${each.value.name}"
-  })
-  depends_on = [aws_vpc.this]
-}
-
-
 # PUBLIC - RT Association
 resource "aws_route_table_association" "public" {
   for_each       = var.public_subnets
@@ -77,7 +76,6 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[each.key].id
   depends_on     = [aws_route_table.private]
 }
-
 
 # EIP Creation
 resource "aws_eip" "this" {
