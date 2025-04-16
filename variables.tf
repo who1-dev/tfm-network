@@ -49,7 +49,6 @@ variable "igws" {
   }
 }
 
-
 variable "public_route_table" {
   type = map(object({
     vpc_key = string
@@ -92,8 +91,6 @@ variable "private_subnets" {
   }
 }
 
-
-
 variable "eips" {
   type = map(object({
     name = string
@@ -101,7 +98,6 @@ variable "eips" {
   default = {
   }
 }
-
 
 variable "natgws" {
   type = map(object({
@@ -112,4 +108,17 @@ variable "natgws" {
   }))
   default = {
   }
+}
+
+#By default all subnets declared in var.public_subnets and var.private_subnets will be associated to the Route table
+#In case of network isolation, use this fields to de associate it.
+variable "filter_public_route_table_association" {
+  description = "Public Subnet keys added to this will be deassociated with the Public Route Table"
+  type        = list(string)
+  default     = []
+}
+variable "filter_private_route_table_association" {
+  description = "Private Subnet keys added to this will be deassociated with the Private Route Table"
+  type        = list(string)
+  default     = []
 }

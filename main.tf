@@ -32,7 +32,7 @@ resource "aws_subnet" "public" {
   for_each          = var.public_subnets
   vpc_id            = aws_vpc.this[each.value.vpc_key].id
   cidr_block        = each.value.cidr_block
-  availability_zone = each.value.availability_zone
+  availability_zone = "${var.region}${each.value.availability_zone}"
   tags = merge(local.default_tags, {
     Name = "${local.name_prefix}-${each.value.name}"
   })
@@ -54,7 +54,7 @@ resource "aws_subnet" "private" {
   for_each          = var.private_subnets
   vpc_id            = aws_vpc.this[each.value.vpc_key].id
   cidr_block        = each.value.cidr_block
-  availability_zone = each.value.availability_zone
+  availability_zone = "${var.region}${each.value.availability_zone}"
   tags = merge(local.default_tags, {
     Name = "${local.name_prefix}-${each.value.name}"
   })
@@ -63,7 +63,7 @@ resource "aws_subnet" "private" {
 
 # PUBLIC - RT Association
 resource "aws_route_table_association" "public" {
-  for_each       = var.public_subnets
+  for_each       = local.pub_sub_assoc
   route_table_id = aws_route_table.public[each.value.rt_key].id
   subnet_id      = aws_subnet.public[each.key].id
   depends_on     = [aws_route_table.public]
@@ -71,7 +71,7 @@ resource "aws_route_table_association" "public" {
 
 # PRIVATE - RT Association
 resource "aws_route_table_association" "private" {
-  for_each       = var.private_subnets
+  for_each       = local.prv_sub_assoc
   route_table_id = aws_route_table.private[each.value.rt_key].id
   subnet_id      = aws_subnet.private[each.key].id
   depends_on     = [aws_route_table.private]
